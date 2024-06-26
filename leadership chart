@@ -1,0 +1,116 @@
+npx create-react-app leadership-skills-chart;
+cd leadership-skills-chart;
+
+npm install recharts;
+
+npm install gh-pages --save-dev;
+
+import React, { useState } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts';
+
+const data = [
+  { skill: "מעורר השראה ומוטיבציה", value: 38 },
+  { skill: "מציג יושרה והגינות", value: 37 },
+  { skill: "פותר בעיות ומנתח סוגיות", value: 37 },
+  { skill: "מוביל לתוצאות", value: 36 },
+  { skill: "מתקשר באופן עוצמתי", value: 35 },
+  { skill: "מקדם עבודת צוות", value: 33 },
+  { skill: "בונה קשרים", value: 30 },
+  { skill: "מציג מומחיות מקצועית", value: 27 },
+  { skill: "מציג ראייה אסטרטגית", value: 24 },
+  { skill: "מפתח אחרים", value: 21 },
+  { skill: "יוזם", value: 19 },
+  { skill: "חדשני", value: 16 },
+  { skill: "מוביל שינוי", value: 16 },
+  { skill: "מחבר לעולם החיצוני", value: 12 },
+  { skill: "מציב יעדים מאתגרים", value: 10 },
+  { skill: "מתרגל פיתוח עצמי", value: 9 },
+].sort((a, b) => b.value - a.value);
+
+const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F9D56E', '#FF8C94', '#9DE0AD', 
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F9D56E', '#FF8C94', '#9DE0AD'];
+
+const renderActiveShape = (props) => {
+  const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+  const sin = Math.sin(-midAngle * Math.PI / 180);
+  const cos = Math.cos(-midAngle * Math.PI / 180);
+  const sx = cx + (outerRadius + 10) * cos;
+  const sy = cy + (outerRadius + 10) * sin;
+  const mx = cx + (outerRadius + 30) * cos;
+  const my = cy + (outerRadius + 30) * sin;
+  const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+  const ey = my;
+  const textAnchor = cos >= 0 ? 'start' : 'end';
+
+  return (
+    <g>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+      <Sector
+        cx={cx}
+        cy={cy}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        innerRadius={outerRadius + 6}
+        outerRadius={outerRadius + 10}
+        fill={fill}
+      />
+      <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+      <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" fontSize={12}>{`${payload.skill} ${value}%`}</text>
+    </g>
+  );
+};
+
+const LeadershipSkillsChart = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const onPieEnter = (_, index) => {
+    setActiveIndex(index);
+  };
+
+  return (
+    <div dir="rtl" style={{ width: '100%', height: 600, fontFamily: 'Arial, sans-serif', background: '#f0f0f0', padding: '20px', borderRadius: '10px' }}>
+      <h2 style={{ textAlign: 'center', fontSize: '24px', marginBottom: '10px', color: '#333' }}>
+        אילו כישורי מנהיגות נחוצים לך ביותר?
+      </h2>
+      <p style={{ textAlign: 'center', fontSize: '16px', marginBottom: '20px', color: '#666' }}>
+        כישורים אלה נבחרו כחשובים ביותר לכל תפקידי הניהול.
+      </p>
+      <ResponsiveContainer width="100%" height={500}>
+        <PieChart>
+          <Pie
+            activeIndex={activeIndex}
+            activeShape={renderActiveShape}
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={60}
+            outerRadius={80}
+            fill="#8884d8"
+            dataKey="value"
+            onMouseEnter={onPieEnter}
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+      <p style={{ textAlign: 'center', fontSize: '14px', marginTop: '20px', color: '#666' }}>
+        מקור: ZENGER/FOLKMAN
+        <br />
+        מתוך "הכישורים שכל מנהיג צריך," מאת ג'ק זנגר וג'וזף פולקמן, יולי 2014
+      </p>
+    </div>
+  );
+};
+
+export default LeadershipSkillsChart;
